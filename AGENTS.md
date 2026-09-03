@@ -96,6 +96,9 @@ export PATH="$HOME/.npm-global/bin:$HOME/.local/bin:$PATH"
   - Terminal `cat` render artifact (`this.` looks mangled)→ files are clean; verify via `cat -n`/editor/Python repr before "fixing" anything..
 - **Open items awaiting boss**: ① phase plan (roadmap conversion);② commit vs delete `package-lock.json`;③ any engine tooling to install for Phases 1-2..
 - **Decisions so far**: boss wants two assist agents; selected lineup = opencode + aider (done); `AGENTS.md` created as shared onboarding/session memory..
+- **Git pushed (2026-09-03 late session)**: rebase onto force-updated `origin/main` (remote contained major Phase-1 commit `46af403` — Scope & Target Authorization Subsystem, Static Analysis Engine, Source Package, new components/tests, `bun.lock`, `docker-compose.yml`, `usr/local/bin/semgrep` bin, `.test_fixtures/`). Our original commit bas on old `20826dd`; rebase `--onto` resolved cleanly: took remote's `package-lock.json` (3034 lines, newer than ours raise) and kept only our `AGENTS.md`. Pushed as `617e805` → `origin/main`. **Remote owns the lockfile story now** — if `npm install` is needed, use remote's lockfile + `--legacy-peer-deps`, not our earlier one..
+- **IMPORTANT — repo is now Phase 1-ish**: remote commit adds real scope/target authorization (`ScopeDecisionEngine`, `InvestigationGate`, `GitSourceProvider`, real `static_analysis` engine, integration tests `phase1_end_to_end`, `program_adapters`, `scope_decision_engine`, `static_analysis`, `git_source_provider`, `investigation_gate`). Re-audit invariances/tests against new code before next phase work (51-test Phase-0 suite may now differ; run `npm test` fresh).
+- **Current open items**: ① boss's phase plan roadmap;② (resolved: lockfile committed via remote's version);③ Phase-1/2 engine tooling decisions.
 
 ## Agent Coordination
 
