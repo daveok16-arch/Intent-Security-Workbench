@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: intent-sec-postgres
+    environment:
+      POSTGRES_DB: intent_security
+      POSTGRES_USER: intent_user
+      POSTGRES_PASSWORD: intent_secure_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U intent_user -d intent_security"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: intent-sec-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    container_name: intent-sec-api
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://intent_user:intent_secure_password@postgres:5432/intent_security
+      REDIS_URL: redis://redis:6379/0
+      PORT: 8000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  worker:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.worker
+    container_name: intent-sec-worker
+    environment:
+      DATABASE_URL: postgresql://intent_user:intent_secure_password@postgres:5432/intent_security
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.web
+    container_name: intent-sec-web
+    ports:
+      - "3000:3000"
+    environment:
+      VITE_API_URL: http://localhost:8000
+      VITE_WS_URL: ws://localhost:8000/ws
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:
